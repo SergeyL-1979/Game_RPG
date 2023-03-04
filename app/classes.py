@@ -37,6 +37,6 @@ unit_classes = {
     ThiefClass.name: ThiefClass,
     WarriorClass.name: WarriorClass
 }
-
-u = unit_classes.get('Воин')
-print(u.skill.name)
+# print(unit_classes.items())
+# u = unit_classes.get('Воин')
+# print(u.skill.name)
