@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for
 
 from base import BaseUnit, Arena
-from unit import PlayerUnit, EnemyUnit
+from unit import PlayerUnit, EnemyUnit, UnitDied
 from classes import unit_classes
 from equipment import Weapon, Armor, Equipment
 
@@ -36,11 +36,24 @@ def hit():
     # обновляем экран боя (нанесение удара) (шаблон fight.html)
     # если игра идет - вызываем метод player.hit() экземпляра класса арены
     # если игра не идет - пропускаем срабатывание метода (простот рендерим шаблон с текущими данными)
-    if arena.game_is_running:
-        result = arena.player_hit()
-    else:
+    # if arena.game_is_running:
+    #     result = arena.player_hit()
+    # else:
+    #     result = arena.battle_result
+    # return render_template('fight.html', heroes=heroes, result=result)
+    # =====================================================================
+    try:
+        if arena.game_is_running:
+            result = arena.player_hit()
+        else:
+            result = arena.battle_result
+        # return render_template('fight.html', heroes=heroes, result=result)
+    except UnitDied as e:
+        error_unit = e.args[0]
         result = arena.battle_result
+        return render_template('fight.html', heroes=heroes, result=result, error_unit=error_unit)
     return render_template('fight.html', heroes=heroes, result=result)
+
 
 
 @app.route("/fight/use-skill")

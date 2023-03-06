@@ -77,10 +77,11 @@ class Arena(metaclass=BaseSingleton):
         # возвращаем результат
         self._instances = {}
         self.game_is_running = False
-        try:
-            return self.battle_result
-        except UnitDied as e:
-            return f'{e.args[0]}'
+        return self.battle_result
+        # try:
+        #     return self.battle_result
+        # except UnitDied as e:
+        #     return f'{e.args[0]}'
 
     def player_hit(self):
         # КНОПКА УДАР ИГРОКА -> return result: str

@@ -77,11 +77,11 @@ class BaseUnit(ABC):
         #   логику расчета брони цели
         # armor_goals = target.armor.defence * target.unit_class.stamina
         armor_goals = target.armor.defence * target.unit_class.armor
-
+        self.stamina -= self.weapon.stamina_per_hit
         if target.stamina >= target.armor.stamina_per_turn * target.unit_class.stamina:
             weapon_damage -= target.armor.defence
             armor_goals -= target.armor.defence
-            self.stamina -= target.armor.stamina_per_turn * target.unit_class.stamina
+            # self.stamina -= target.armor.stamina_per_turn * target.unit_class.stamina
 
         target.get_damage(weapon_damage)
         return weapon_damage
