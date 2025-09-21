@@ -1,45 +1,19 @@
 {
   "weapons": [
-   {
-    "id": 1,
-    "name": "топорик",
-    "min_damage": 2.5,
-    "max_damage": 4.1,
-    "stamina_per_hit": 1.8
-  },
-  {
-    "id": 2,
-    "name": "ножик",
-    "min_damage": 1.2,
-    "max_damage": 2.5,
-    "stamina_per_hit": 1.3
-  },
-  {
-  "id": 3,
-  "name": "ладошки",
-  "max_damage": 1,
-  "min_damage": 0.5,
-  "stamina_per_hit": 1
-  }
-],
+    { "id": 1, "name": "Учебный меч",   "min_damage": 2.0, "max_damage": 4.0, "stamina_per_hit": 2.0 },
+    { "id": 2, "name": "Длинный меч",   "min_damage": 3.0, "max_damage": 5.0, "stamina_per_hit": 3.0 },
+    { "id": 3, "name": "Кинжал",        "min_damage": 1.0, "max_damage": 3.0, "stamina_per_hit": 1.0 },
+    { "id": 4, "name": "Копьё",         "min_damage": 2.5, "max_damage": 5.5, "stamina_per_hit": 2.5 },
+    { "id": 5, "name": "Боевой молот",  "min_damage": 5.0, "max_damage": 8.0, "stamina_per_hit": 5.0 },
+    { "id": 6, "name": "Короткий лук",  "min_damage": 2.0, "max_damage": 4.5, "stamina_per_hit": 2.0 },
+    { "id": 7, "name": "Секира",        "min_damage": 4.5, "max_damage": 7.0, "stamina_per_hit": 4.0 },
+    { "id": 8, "name": "Посох",         "min_damage": 2.0, "max_damage": 6.0, "stamina_per_hit": 3.5 }
+  ],
   "armors": [
-  {
-    "id": 1,
-    "name": "футболка",
-    "defence": 0,
-    "stamina_per_turn": 0
-    },
-    {
-    "id": 2,
-    "name":"кожаная броня",
-    "defence": 1.2,
-    "stamina_per_turn": 1
-    },
-    {
-    "id": 3,
-    "name": "панцирь",
-    "defence": 2.0,
-    "stamina_per_turn": 1.6
-    }
+    { "id": 1, "name": "Ткань",         "defence": 0.5, "stamina_per_turn": 0.5 },
+    { "id": 2, "name": "Кожа",          "defence": 1.5, "stamina_per_turn": 1.0 },
+    { "id": 3, "name": "Кольчуга",      "defence": 2.5, "stamina_per_turn": 1.5 },
+    { "id": 4, "name": "Латы",          "defence": 4.0, "stamina_per_turn": 2.5 },
+    { "id": 5, "name": "Щитовая куртка","defence": 2.0, "stamina_per_turn": 0.8 }
   ]
 }

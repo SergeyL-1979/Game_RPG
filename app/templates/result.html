@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Результат боя</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  </head>
+  <body>
+    <main style="width: 720px; margin: 40px auto;">
+      <div class="text-center mb-4">
+        {% if arena.battle_result == "Игрок победил" %}
+          <h1 class="text-success">Победа!</h1>
+        {% elif arena.battle_result == "Игрок проиграл" %}
+          <h1 class="text-danger">Поражение</h1>
+        {% else %}
+          <h1>Бой завершён</h1>
+        {% endif %}
+        <p class="lead">{{ arena.battle_result }}</p>
+        <span class="badge bg-secondary">Сценарий: {{ arena.scenario }}</span>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h4>{{ heroes.player.name }} — {{ heroes.player.unit_class.name }}</h4>
+          <p>HP: {{ heroes.player.health_points }}/{{ heroes.player.unit_class.max_health }},
+             STA: {{ heroes.player.stamina_points }}/{{ heroes.player.unit_class.max_stamina }}</p>
+        </div>
+        <div class="col">
+          <h4>{{ heroes.enemy.name }} — {{ heroes.enemy.unit_class.name }}</h4>
+          <p>HP: {{ heroes.enemy.health_points }}/{{ heroes.enemy.unit_class.max_health }},
+             STA: {{ heroes.enemy.stamina_points }}/{{ heroes.enemy.unit_class.max_stamina }}</p>
+        </div>
+      </div>
+
+      <hr>
+      <div class="text-center">
+        <a class="btn btn-primary m-2" href="/choose-hero/?scenario={{ arena.scenario }}">Сыграть ещё</a>
+        <a class="btn btn-outline-secondary m-2" href="/">На главную</a>
+      </div>
+    </main>
+  </body>
+</html>

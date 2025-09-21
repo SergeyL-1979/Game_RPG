@@ -1,102 +1,90 @@
-from unit import BaseUnit, UnitDied
-
+# app/base.py
+from __future__ import annotations
+from random import randint
+from typing import Optional
+from .unit import BaseUnit, UnitDied
 
 class BaseSingleton(type):
     _instances = {}
-
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
 
-
 class Arena(metaclass=BaseSingleton):
     STAMINA_PER_ROUND = 1
-    player = None
-    enemy = None
-    game_is_running = False
-    battle_result = None
 
-    def start_game(self, player: BaseUnit, enemy: BaseUnit):
-        # НАЧАЛО ИГРЫ -> None
-        # присваиваем экземпляру класса аттрибуты "игрок" и "противник"
-        # а также выставляем True для свойства "началась ли игра"
-        self.player = player
-        self.enemy = enemy
+    def __init__(self):
+        self.player: Optional[BaseUnit] = None
+        self.enemy: Optional[BaseUnit] = None
+        self.game_is_running: bool = False
+        self.battle_result: str = ""
+        self.scenario: str = "classic"
+
+    def start_game(self, player: BaseUnit, enemy: BaseUnit, scenario: str = "classic"):
+        self.player, self.enemy = player, enemy
         self.game_is_running = True
-
-    def _check_players_hp(self):
-        # ПРОВЕРКА ЗДОРОВЬЯ ИГРОКА И ВРАГА
-        # проверка здоровья игрока и врага и возвращение результата строкой:
-        # может быть три результата:
-        # Игрок проиграл битву, Игрок выиграл битву, Ничья и сохраняем его в аттрибуте (self.battle_result)
-        # если Здоровья игроков в порядке то ничего не происходит
-        if self.player.hp > 0 and self.enemy.hp > 0:
-            return None
-
-        if self.player.hp <= 0 and self.enemy.hp <= 0:
-            self.battle_result = 'НИЧЬЯ'
-        elif self.player.hp < 0:
-            self.battle_result = f'{self.enemy.name} ПОБЕДИЛ!'
-        else:
-            self.battle_result = f'{self.player.name} ПОБЕДИЛ!'
+        self.battle_result = ""
+        self.scenario = scenario
+        self.STAMINA_PER_ROUND = {"classic": 1, "fast": 3, "exhaustion": 0}.get(scenario, 1)
 
     def _stamina_regeneration(self):
-        # регенерация здоровья и регенерация выносливости(stamina_regeneration) для игрока и врага за ход
-        # в этом методе к количеству выносливости(stamina) игрока и врага прибавляется константное значение.
-        # главное чтобы оно не превысило максимальные значения (используйте if)
-        units = (self.player, self.enemy)
-        for unit in units:
-            if unit.stamina + self.STAMINA_PER_ROUND > unit.unit_class.max_stamina:
-                unit.stamina = unit.unit_class.max_stamina
-            else:
-                unit.stamina += self.STAMINA_PER_ROUND
+        for unit in (self.player, self.enemy):
+            if unit is None:
+                continue
+            gain = self.STAMINA_PER_ROUND * unit.unit_class.stamina
+            unit.stamina = min(unit.unit_class.max_stamina, round(unit.stamina + gain, 1))
 
-    def next_turn(self):
-        # СЛЕДУЮЩИЙ ХОД -> return result | return self.enemy.hit(self.player)
-        # срабатывает когда игрок пропускает ход или когда игрок наносит удар.
-        # создаем поле result и проверяем что вернется в результате функции self._check_players_hp
-        # если result -> возвращаем его
-        # если же результата пока нет и после завершения хода игра продолжается,
-        # тогда запускаем процесс регенерации выносливости(stamina) и
-        # здоровья для игроков (self._stamina_regeneration)
-        # и вызываем функцию self.enemy.hit(self.player) - ответный удар врага
-        result = self._check_players_hp()
-        # self._check_players_hp()
-        if result is not None:
-            return result
-        if self.game_is_running:
-            self._stamina_regeneration()
-            return self.enemy.hit(self.player)
+    def _check_players_hp(self) -> Optional[str]:
+        if self.player is None or self.enemy is None:
+            return None
+        if self.player.hp <= 0 and self.enemy.hp <= 0:
+            self.battle_result = "Ничья"
+        elif self.player.hp <= 0:
+            self.battle_result = "Игрок проиграл"
+        elif self.enemy.hp <= 0:
+            self.battle_result = "Игрок победил"
+        else:
+            return None
+        return self._end_game()
 
-    def _end_game(self):
-        # КНОПКА ЗАВЕРШЕНИЕ ИГРЫ - > return result: str
-        # очищаем синглтон - self._instances = {}
-        # останавливаем игру (game_is_running)
-        # возвращаем результат
-        self._instances = {}
+    def _end_game(self) -> str:
         self.game_is_running = False
         return self.battle_result
-        # try:
-        #     return self.battle_result
-        # except UnitDied as e:
-        #     return f'{e.args[0]}'
 
-    def player_hit(self):
-        # КНОПКА УДАР ИГРОКА -> return result: str
-        # получаем результат от функции self.player.hit
-        # запускаем следующий ход
-        # возвращаем результат удара строкой
+    def next_turn(self) -> str:
+        if not self.game_is_running:
+            return self.battle_result
+
+        result = self._check_players_hp()
+        if result:
+            return result
+
+        self._stamina_regeneration()
+
+        if self.player is None or self.enemy is None:
+            return "Ошибка состояния боя."
+
+        # 10% шанс умения у врага
+        if (not self.enemy._is_skill_used) and randint(1, 10) == 1:
+            enemy_action = self.enemy.use_skill(self.player)
+        else:
+            enemy_action = self.enemy.hit(self.player)
+
+        end = self._check_players_hp()
+        return enemy_action if not end else enemy_action + "<br>" + end
+
+    def player_hit(self) -> str:
+        if self.player is None or self.enemy is None:
+            return "Ошибка состояния боя."
         result = self.player.hit(self.enemy)
-        turn_result = self.next_turn()
-        return f'{result}<br>{turn_result}'
+        turn = self.next_turn()
+        return result + "<br>" + turn
 
-    def player_use_skill(self):
-        # КНОПКА ИГРОК ИСПОЛЬЗУЕТ УМЕНИЕ
-        # получаем результат от функции self.use_skill
-        # включаем следующий ход
-        # возвращаем результат удара строкой
+    def player_use_skill(self) -> str:
+        if self.player is None or self.enemy is None:
+            return "Ошибка состояния боя."
         result = self.player.use_skill(self.enemy)
-        turn_result = self.next_turn()
-        return f'{result}<br>{turn_result}'
+        turn = self.next_turn()
+        return result + "<br>" + turn

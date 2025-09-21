@@ -1,86 +1,80 @@
+# app/skills.py
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
-    from unit import BaseUnit
-
+    from .unit import BaseUnit
 
 class Skill(ABC):
-    """
-    Базовый класс умения
-    """
-    user = None
-    target = None
+    user: "BaseUnit" = None
+    target: "BaseUnit" = None
+    name: str
+    stamina: float
+    damage: float
 
-    @property
-    @abstractmethod
-    def name(self):
-        pass
-
-    @property
-    @abstractmethod
-    def stamina(self):
-        pass
-
-    @property
-    @abstractmethod
-    def damage(self):
-        pass
+    def use(self, user: "BaseUnit", target: "BaseUnit") -> str:
+        self.user, self.target = user, target
+        if self.user.stamina < self.stamina:
+            return f"{self.user.name} попытался использовать {self.name}, но у него не хватило выносливости."
+        return self.skill_effect()
 
     @abstractmethod
     def skill_effect(self) -> str:
-        pass
+        ...
 
-    def _is_stamina_enough(self):
-        return self.user.stamina >= self.stamina
-
-    def use(self, user: BaseUnit, target: BaseUnit) -> str:
-        """
-        Проверка, достаточно ли выносливости у игрока для применения умения.
-        Для вызова скилла везде используем просто use
-        """
-        self.user = user
-        self.target = target
-        if self._is_stamina_enough:
-            return self.skill_effect()
-        return f"{self.user.name} попытался использовать {self.name} но у него не хватило выносливости."
-
-
+# БЫЛО
 class FuryPunch(Skill):
-    """
-    Логика использования skill_effect -> return str
-    В классе нам доступны экземпляры user и target - можно использовать любые их методы
-    именно здесь происходит уменьшение stamina(выносливость) у игрока применяющего умение и
-    уменьшение здоровья цели.
-    Результат применения возвращаем строкой
-    """
-    name = 'Яростный удар'
+    name = "Свирепый пинок"
     stamina = 6
     damage = 12
-
     def skill_effect(self) -> str:
         self.user.stamina -= self.stamina
-        self.target.hp -= self.damage
-        # self.target.get_damage(self.damage)
+        self.target.get_damage(self.damage)
         return f"{self.user.name} использует {self.name} и наносит {self.damage} урона сопернику."
-
 
 class HardShot(Skill):
-    """
-    Логика использования skill_effect -> return str
-    В классе нам доступны экземпляры user и target - можно использовать любые их методы
-    именно здесь происходит уменьшение stamina(выносливость) у игрока применяющего умение и
-    уменьшение здоровья цели.
-    Результат применения возвращаем строкой
-    """
-    name = 'Жесткий выстрел'
+    name = "Мощный укол"
     stamina = 5
     damage = 15
-
     def skill_effect(self) -> str:
         self.user.stamina -= self.stamina
-        self.target.hp -= self.damage
-        # self.target.get_damage(self.damage)
+        self.target.get_damage(self.damage)
         return f"{self.user.name} использует {self.name} и наносит {self.damage} урона сопернику."
+
+# ДОБАВЛЕНО
+class CrushingBlow(Skill):
+    name = "Сокрушительный удар"
+    stamina = 8
+    damage = 18
+    def skill_effect(self) -> str:
+        self.user.stamina -= self.stamina
+        self.target.get_damage(self.damage)
+        return f"{self.user.name} обрушивает {self.name} и наносит {self.damage} урона!"
+
+class FlurryStrikes(Skill):
+    name = "Шквал ударов"
+    stamina = 7
+    damage = 14
+    def skill_effect(self) -> str:
+        self.user.stamina -= self.stamina
+        self.target.get_damage(self.damage)
+        return f"{self.user.name} проводит {self.name}, суммарно нанося {self.damage} урона!"
+
+class PreciseShot(Skill):
+    name = "Точный выстрел"
+    stamina = 5
+    damage = 13
+    def skill_effect(self) -> str:
+        self.user.stamina -= self.stamina
+        self.target.get_damage(self.damage)
+        return f"{self.user.name} делает {self.name} и наносит {self.damage} урона!"
+
+class ArcaneBurst(Skill):
+    name = "Чародейский взрыв"
+    stamina = 8
+    damage = 16
+    def skill_effect(self) -> str:
+        self.user.stamina -= self.stamina
+        self.target.get_damage(self.damage)
+        return f"{self.user.name} высвобождает {self.name}, нанося {self.damage} урона!"
