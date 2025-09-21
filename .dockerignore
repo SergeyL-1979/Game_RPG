@@ -1,10 +1,12 @@
 .git
-__pycache__
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
-.venv
-venv
-build
-dist
 *.log
+.venv/
+venv/
+dist/
+build/
+.idea/
+.vscode/
