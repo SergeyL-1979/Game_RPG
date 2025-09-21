@@ -1,16 +1,33 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
+  # Продукшн: Gunicorn + Flask
   app:
-    build: ..
-    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
-    restart: always
+    build:
+      context: ../..          # корень проекта Game_RPG
+      dockerfile: Dockerfile  # Dockerfile в корне
+    container_name: rpg-app
+    expose:
+      - "5000"                # отдаём только внутрь сети compose
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/'); print('ok')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
+  # Nginx — реверс-прокси для сервиса app
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.25-alpine
+    container_name: rpg-nginx
+    depends_on:
+      - app
     ports:
-      - 80:80
+      - "80:80"               # откроется http://localhost/
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    restart: always
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped

@@ -120,8 +120,16 @@ def end_fight():
     arena.battle_result = arena.battle_result or "Бой завершён"
     return redirect(url_for("fight_result"))
 
+# @app.route("/fight/result")
+# def fight_result():
+#     # на всякий случай выставим результат, если ещё пусто
+#     _ensure_battle_result()
+#     return render_template("result.html", heroes=heroes, arena=arena)
 @app.route("/fight/result")
 def fight_result():
-    # на всякий случай выставим результат, если ещё пусто
+    # если открыли страницу напрямую или после рестарта — отправим на главную
+    if not heroes.get("player") or not heroes.get("enemy"):
+        return redirect(url_for("index"))
+
     _ensure_battle_result()
     return render_template("result.html", heroes=heroes, arena=arena)
